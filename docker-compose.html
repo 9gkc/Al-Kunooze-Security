@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔒 VULNSCAN PRO - منصة الفحص الأمني المتقدمة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="data:application/manifest+json,{
+        'name': 'VulnScanner Pro',
+        'short_name': 'VulnScan',
+        'start_url': '.',
+        'display': 'standalone',
+        'background_color': '#0f172a',
+        'theme_color': '#3b82f6'
+    }">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Header أكاديمي */
+    .header {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 30px;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .university-badge {
+      background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 12px;
+      display: inline-block;
+      margin: 5px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Scan Section */
+    .scan-section {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 20px;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .target-input {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      border: 3px solid #475569;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    .target-input:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .scan-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    /* الأزرار */
+    button {
+      padding: 18px 25px;
+      border: none;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s;
+      font-family: 'Cairo', sans-serif;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-critical {
+      background: linear-gradient(45deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .btn-high {
+      background: linear-gradient(45deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .btn-medium {
+      background: linear-gradient(45deg, #06b6d4, #0891b2);
+      color: white;
+    }
+
+    .btn-full {
+      background: linear-gradient(45deg, #10b981, #059669);
+      color: white;
+    }
+
+    button:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    button:active {
+      transform: translateY(-2px);
+    }
+
+    /* النتائج */
+    .results {
+      margin-top: 30px;
+    }
+
+    .result-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      border-right: 6px solid #3b82f6;
+      backdrop-filter: blur(10px);
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .command-box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+      direction: ltr;
+      word-break: break-all;
+      border-left: 5px solid #3b82f6;
+      margin: 15px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      background: #3b82f6;
+      padding: 8px 16px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* التقرير */
+    .report-preview {
+      background: white;
+      color: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .severity-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin: 2px;
+    }
+
+    .critical {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .high {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    /* Footer أكاديمي */
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .academic-notice {
+      background: linear-gradient(45deg, #f59e0b, #fbbf24);
+      color: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .scan-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header أكاديمي -->
+    <div class="header">
+      <h1>🔍 <strong>VulnScanner Pro</strong></h1>
+      <p>🔒 منصة فحص ثغرات أمنية متقدمة - <strong>منصة متقدمة للفحص الأمني</strong></p>
+      <div>
+        <span class="university-badge">🎓 أكاديمي معتمد</span>
+        <span class="university-badge">⚡ Nuclei v3.7.1</span>
+        <span class="university-badge">📊 12,450+ Template</span>
+        <span class="university-badge">🏆 OWASP Top 10</span>
+      </div>
+    </div>
+
+    <!-- رخصة أكاديمية -->
+    <div class="academic-notice">
+      📜 <strong>الترخيص والاستخدام:</strong> هذه المنصة مخصصة للأغراض الدفاعية والتعليمية والبحثية فقط.
+      يتطلب تصريح رسمي من الجامعة لأي استخدام آخر.
+    </div>
+
+    <!-- قسم الفحص -->
+    <div class="scan-section">
+      <h2>🎯 <strong>ابدأ فحص الثغرات</strong></h2>
+      <input type="url" class="target-input" id="targetUrl"
+        placeholder="أدخل رابط الموقع (مثال: https://testphp.vulnweb.com)" value="https://testphp.vulnweb.com">
+
+      <div class="scan-buttons">
+        <button class="btn-critical" onclick="generateScan('xss')">
+          🔴 XSS Injection
+        </button>
+        <button class="btn-high" onclick="generateScan('sqli')">
+          🟠 SQL Injection
+        </button>
+        <button class="btn-medium" onclick="generateScan('ssrf')">
+          🔵 SSRF & Open Redirect
+        </button>
+        <button class="btn-full" onclick="generateScan('full')">
+          🟢 فحص شامل (Top 10)
+        </button>
+      </div>
+    </div>
+
+    <!-- النتائج -->
+    <div class="results" id="resultsContainer">
+      <div class="result-card">
+        <h3>📋 <strong>الأمر الجاهز للتنفيذ</strong></h3>
+        <div class="command-box" id="commandBox">
+          اضغط أي زر أعلاه لتوليد الأمر التلقائي...
+        </div>
+        <button class="copy-btn" onclick="copyCommand()">📋 نسخ الأمر</button>
+        <small>الصق الأمر في Terminal VS Code بعد Docker</small>
+      </div>
+
+      <div class="result-card report-preview" id="reportPreview">
+        <h3>📄 <strong>معاينة التقرير</strong></h3>
+        <div id="sampleResults">
+          <div class="severity-badge critical">CRITICAL</div> SQL Injection - /login.php?id=1<br>
+          <div class="severity-badge high">HIGH</div> XSS - /search?q=&lt;script&gt;<br>
+          <div class="severity-badge high">HIGH</div> CORS Misconfiguration
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <h3>📚 <strong>منصة فحص أمني متقدمة</strong></h3>
+      <p><strong>الطالب:</strong> [اسمك] | <strong>التخصص:</strong> أمن سيبراني | <strong>الجامعة:</strong> [اسم
+        الجامعة]</p>
+      <p><strong>التكنولوجيا:</strong> Nuclei • Docker • OWASP • MITRE ATT&CK</p>
+      <p>© 2026 - للاستخدام الأكاديمي فقط 🏛️</p>
+    </div>
+  </div>
+
+  <script>
+    // قوالب الأوامر الاحترافية
+    const scanTemplates = {
+      xss: {
+        cmd: 'docker exec vulnscanner-pro-vulnscanner-1 nuclei -u {URL} -tags xss -severity critical,high -o ~/Desktop/[TIMESTAMP]_xss-report.json -json-export',
+        desc: 'XSS Reflected/Stored/DOM - OWASP A7',
+        color: '#ef4444'
+      },
+      sqli: {
+        cmd: 'docker exec vulnscanner-pro-vulnscanner-1 nuclei -u {URL} -tags sqli -severity critical,high -o ~/Desktop/[TIMESTAMP]_sqli-report.json -json-export',
+        desc: 'SQL Injection - OWASP A1',
+        color: '#f59e0b'
+      },
+      ssrf: {
+        cmd: 'docker exec vulnscanner-pro-vulnscanner-1 nuclei -u {URL} -tags ssrf,redirect -o ~/Desktop/[TIMESTAMP]_ssrf-report.json',
+        desc: 'SSRF & Open Redirect - OWASP A10',
+        color: '#06b6d4'
+      },
+      full: {
+        cmd: 'docker exec vulnscanner-pro-vulnscanner-1 nuclei -u {URL} -severity critical,high -tags cve,owasp-top-10 -o ~/Desktop/[TIMESTAMP]_full-report.json -json-export',
+        desc: 'فحص شامل OWASP Top 10 + CVEs',
+        color: '#10b981'
+      }
+    };
+
+    function generateScan(type) {
+      const url = document.getElementById('targetUrl').value;
+      const template = scanTemplates[type];
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+
+      let cmd = template.cmd
+        .replace('{URL}', url)
+        .replace('[TIMESTAMP]', timestamp);
+
+      document.getElementById('commandBox').textContent = cmd;
+      document.getElementById('commandBox').style.borderLeftColor = template.color;
+
+      // إشعار نجاح
+      showNotification(`${type.toUpperCase()} Scan جاهز!`, 'success');
+
+      // نسخ تلقائي
+      navigator.clipboard.writeText(cmd).then(() => {
+        console.log('✅ الأمر منسوخ!');
+      });
+    }
+
+    function copyCommand() {
+      const cmd = document.getElementById('commandBox').textContent;
+      navigator.clipboard.writeText(cmd);
+      showNotification('📋 الأمر منسوخ!', 'info');
+    }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'}; 
+                color: white; border-radius: 10px; z-index: 10000;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-weight: 600;
+            `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      deferredPrompt = e;
+    });
+  </script>
+</body>
+
+</html>

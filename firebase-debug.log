@@ -1,0 +1,67 @@
+[debug] [2026-04-21T03:11:52.735Z] ----------------------------------------------------------------------
+[debug] [2026-04-21T03:11:52.737Z] Command:       C:\nvm4w\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-04-21T03:11:52.737Z] CLI Version:   13.35.1
+[debug] [2026-04-21T03:11:52.738Z] Platform:      win32
+[debug] [2026-04-21T03:11:52.738Z] Node Version:  v18.20.8
+[debug] [2026-04-21T03:11:52.739Z] Time:          Tue Apr 21 2026 06:11:52 GMT+0300 (Arabian Standard Time)
+[debug] [2026-04-21T03:11:52.739Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-21T03:11:52.746Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-21T03:11:52.747Z] > authorizing via signed-in user (alkarara70cys@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\user\Desktop\Project Zakaria
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[info] i  If you want to create a project in a Google Cloud organization or folder, please use "firebase projects:create" instead, and return to this command when you've created the project. 
+[debug] [2026-04-21T03:12:35.018Z] Checked if tokens are valid: false, expires at: 1774388223221
+[debug] [2026-04-21T03:12:35.018Z] Checked if tokens are valid: false, expires at: 1774388223221
+[debug] [2026-04-21T03:12:35.019Z] > refreshing access token with scopes: []
+[debug] [2026-04-21T03:12:35.021Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-04-21T03:12:35.021Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-04-21T03:12:35.515Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-04-21T03:12:35.515Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-04-21T03:12:35.537Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects [none]
+[debug] [2026-04-21T03:12:35.537Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"projectId":"al-kunooze-security","name":"al-kunooze-security"}
+[debug] [2026-04-21T03:12:36.814Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects 409
+[debug] [2026-04-21T03:12:36.815Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"error":{"code":409,"message":"Requested entity already exists","status":"ALREADY_EXISTS"}}
+[debug] [2026-04-21T03:12:37.115Z] FirebaseError: Request to https://cloudresourcemanager.googleapis.com/v1/projects had HTTP Error: 409, Requested entity already exists
+    at responseToError (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:52:12)
+    at RetryOperation._fn (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to create project because there is already a project with ID al-kunooze-security. Please try again with a unique project ID.
+[debug] [2026-04-21T03:15:12.668Z] ----------------------------------------------------------------------
+[debug] [2026-04-21T03:15:12.670Z] Command:       C:\nvm4w\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-04-21T03:15:12.670Z] CLI Version:   13.35.1
+[debug] [2026-04-21T03:15:12.670Z] Platform:      win32
+[debug] [2026-04-21T03:15:12.671Z] Node Version:  v18.20.8
+[debug] [2026-04-21T03:15:12.672Z] Time:          Tue Apr 21 2026 06:15:12 GMT+0300 (Arabian Standard Time)
+[debug] [2026-04-21T03:15:12.672Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-21T03:15:12.682Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-21T03:15:12.683Z] > authorizing via signed-in user (alkarara70cys@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\user\Desktop\Project Zakaria
+
