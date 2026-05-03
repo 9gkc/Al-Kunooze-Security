@@ -60,3 +60,4 @@ This tool is for **authorized defensive use only**. Unauthorized scanning is ill
 <div align="center">
   <sub>Developed as part of Project Zakaria. Dedicated to advancing defensive security research.</sub>
 </div>
+< Last Updated: Sun May  3 01:12:17 EDT 2026 -->
