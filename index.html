@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Al-Kunooze Security</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="page-shell"></div>
+  <main class="layout">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="badge" id="badge">منصة فحص أمني متقدمة</span>
+        <h1>Al-Kunooze Security</h1>
+        <button id="language-toggle" class="language-toggle">English</button>
+        <p id="description">
+          منصة دفاعية عربية متقدمة للفحص الأمني العميق والشامل للمواقع المصرح بها، مع تقارير احترافية
+          شاملة تساعد في تحديد وتحليل المخاطر الأمنية والحمايات الموجودة بشكل واضح ودقيق.
+        </p>
+        <div class="hero-points">
+          <span id="point1">تقارير فورية شاملة</span>
+          <span id="point2">تقييم أمني متقدم</span>
+          <span id="point3">تشغيل محلي آمن وموثوق</span>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="panel-grid">
+          <article>
+            <strong>Deep Defensive Scan</strong>
+            <p>DNS, Ports, Headers, TLS, Paths, Methods</p>
+          </article>
+          <article>
+            <strong>Academic Safe Mode</strong>
+            <p>فحص دفاعي للمواقع المملوكة أو المصرح بها فقط</p>
+          </article>
+          <article>
+            <strong>JSON Reports</strong>
+            <p>يتم حفظ كل تقرير داخل مجلد النتائج لسهولة التوثيق</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="scanner-card">
+      <div class="card-head">
+        <div>
+          <h2 id="scanTitle">بدء الفحص الأمني</h2>
+          <p id="scanDesc">أدخل رابط الموقع أو اسم النطاق المراد فحصه ثم شغّل الفحص الدفاعي العميق والشامل للموقع المصرح
+            به.</p>
+        </div>
+        <div class="notice" id="notice">للاستخدام الدفاعي والأكاديمي والبحثي فقط</div>
+      </div>
+
+      <form id="scan-form" class="scan-form">
+        <label class="sr-only" for="target" id="targetLabel">الموقع المستهدف</label>
+        <input id="target" name="target" type="text" placeholder="example.com أو https://example.com" required>
+        <select id="profile" name="profile" class="scan-select">
+          <option value="quick">فحص سريع</option>
+          <option value="deep" selected>فحص عميق</option>
+          <option value="authorized_deep">فحص عميق متقدم</option>
+        </select>
+        <button id="scan-button" type="submit">تشغيل الفحص</button>
+      </form>
+
+      <div id="progress-card" class="progress-card hidden">
+        <div class="progress-top">
+          <strong id="progress-label">جاري الفحص والتحليل...</strong>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <p class="legal-note">
+        لا تستخدم هذه المنصة إلا على الأنظمة والمواقع التي تملكها أو تمتلك تصريحاً صريحاً وموثقاً لفحصها.
+      </p>
+    </section>
+
+    <section id="status-card" class="status-card hidden"></section>
+    <section id="results" class="results hidden"></section>
+  </main>
+
+  <template id="finding-template">
+    <article class="finding">
+      <div class="finding-top">
+        <span class="severity"></span>
+        <span class="category"></span>
+      </div>
+      <h3 class="title"></h3>
+      <p class="description"></p>
+    </article>
+  </template>
+
+  <script src="demo_data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
