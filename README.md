@@ -6,6 +6,9 @@
   </a>
   <img src="https://img.shields.io/badge/Security-OWASP_Top_10-red?style=for-the-badge" alt="OWASP">
   <img src="https://img.shields.io/badge/Language-Arabic_%2F_English-blue?style=for-the-badge" alt="Bilingual">
+  <img src="https://img.shields.io/github/last-commit/9gkc/Al-Kunooze-Security?style=for-the-badge&label=Last%20Update&color=58A6FF" alt="Last Update">
+  <img src="https://img.shields.io/github/stars/9gkc/Al-Kunooze-Security?style=for-the-badge&color=58A6FF" alt="GitHub Stars">
+  <img src="https://img.shields.io/github/forks/9gkc/Al-Kunooze-Security?style=for-the-badge&color=58A6FF" alt="GitHub Forks">
 </div>
 
 ---
