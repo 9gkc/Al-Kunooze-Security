@@ -1,4 +1,5 @@
 <img width="1672" height="941" alt="ChatGPT Image 1 أغسطس 2026، 10_53_47 م" src="https://github.com/user-attachments/assets/c7d4b267-382f-45df-91b4-c8e6b51f0c9b" />
+
 # Al-Kunooze Security
 
 **Advanced Cybersecurity Platform** — Professional-grade defensive security scanning, vulnerability assessment, and comprehensive security intelligence reporting.
