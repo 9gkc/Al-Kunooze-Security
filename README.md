@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/c7d4b267-382f-45df-91b4-c8e6b51f0c9b" alt="9gkc" width="100%">
-</p>
+<img width="1730" height="909" alt="Al-Kunooze-Security-under-1MB" src="https://github.com/user-attachments/assets/c096f175-d8e2-4326-84a8-80de866b8763" />
 
 # Al-Kunooze Security
 
