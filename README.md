@@ -1,66 +1,71 @@
-# 🛡️ Al-Kunooze Security Platform
+# Al-Kunooze Security
 
-<div align="center">
-  <a href="https://9gkc.github.io/Al-Kunooze-Security/">
-    <img src="https://img.shields.io/badge/🚀_Live_Demo-Click_Here_to_Test-success?style=for-the-badge&logo=github" alt="Live Demo">
-  </a>
-  <img src="https://img.shields.io/badge/Security-OWASP_Top_10-red?style=for-the-badge" alt="OWASP">
-  <img src="https://img.shields.io/badge/Language-Arabic_%2F_English-blue?style=for-the-badge" alt="Bilingual">
-  <img src="https://img.shields.io/github/last-commit/9gkc/Al-Kunooze-Security?style=for-the-badge&label=Last%20Update&color=58A6FF" alt="Last Update">
-  <img src="https://img.shields.io/github/stars/9gkc/Al-Kunooze-Security?style=for-the-badge&color=58A6FF" alt="GitHub Stars">
-  <img src="https://img.shields.io/github/forks/9gkc/Al-Kunooze-Security?style=for-the-badge&color=58A6FF" alt="GitHub Forks">
-</div>
+**Advanced Cybersecurity Platform** — Professional-grade defensive security scanning, vulnerability assessment, and comprehensive security intelligence reporting.
+
+![Tech Stack](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=flat-square&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-cyan?style=flat-square&logo=tailwindcss) ![Vite](https://img.shields.io/badge/Vite-7-purple?style=flat-square&logo=vite)
+
+## Overview
+
+Al-Kunooze Security is a modern cybersecurity platform designed for defensive security assessment. It provides deep vulnerability scanning, professional security reports, and actionable remediation recommendations — all through an intuitive, professionally designed web interface.
+
+## Features
+
+- **Deep Security Scanning** — Comprehensive automated scanning simulating multi-layer vulnerability detection
+- **Professional Reports** — Academic-grade security reports with executive summaries and risk scoring
+- **OWASP Top 10 Detection** — Identifies SQL injection, XSS, CSRF, and other critical vulnerabilities
+- **Network Surface Analysis** — Port scanning, DNS resolution, and network topology mapping
+- **Multi-Tool Integration** — Simulates advanced external tool chains (Nuclei, ZAP, custom modules)
+- **Responsive Design** — Mobile-first approach with fluid animations and glass-morphism UI
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript |
+| Styling | Tailwind CSS 4 + Framer Motion |
+| Build | Vite 7 |
+| UI Components | shadcn/ui (Radix Primitives) |
+| Icons | Lucide React |
+| Routing | Wouter |
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/9gkc/Al-Kunooze-Security.git
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+```
+
+## Pages
+
+| Page | Route | Description |
+|------|-------|-------------|
+| Home | `/` | Hero section, features, statistics, and CTA |
+| Scanner | `/scanner` | Interactive deep security scanning interface |
+| Services | `/services` | Comprehensive security services catalog |
+| Reports | `/reports` | Professional security report templates |
+| About | `/about` | Team profiles, mission, and technology stack |
+
+## Design
+
+The platform uses a **"Neural Fortress"** design system — a dark, immersive cybersecurity aesthetic inspired by military-grade defense systems and neural network topologies. Features include deep dark backgrounds, electric cyan (#00F0FF) accents, glass-morphism cards, and Space Grotesk typography.
+
+## License
+
+MIT
+
+## Author
+
+[Ali Al-Karrar](https://github.com/9gkc)
 
 ---
 
-## 🚀 رابط التجربة المباشر | Live Demo Link
-**يمكنك تجربة واجهة المنصة وتقاريرها التفاعلية مباشرة عبر الرابط التالي دون الحاجة لأي تثبيت:**
-### 👉 [https://9gkc.github.io/Al-Kunooze-Security/](https://9gkc.github.io/Al-Kunooze-Security/) 👈
-
----
-
-## 📖 Overview | نبذة عن المشروع
-**Al-Kunooze Security** is an advanced, academic-focused cybersecurity platform designed for **comprehensive and deep defensive scanning** of authorized web applications. It bridges the gap between complex security tools and user-friendly interfaces, providing professional reports in both Arabic and English.
-
-**منصة الكنوز الأمنية** هي منصة متقدمة متخصصة في الفحص الدفاعي العميق للمواقع المصرح بها. تهدف المنصة إلى توفير أدوات فحص احترافية بواجهة عربية سهلة الاستخدام وتقارير تقنية مفصلة تساعد الباحثين الأمنيين في تحليل المخاطر.
-
----
-
-## ✨ Key Features | المميزات الرئيسية
-
-*   **🔍 Deep Reconnaissance (الاستطلاع العميق)**:
-    *   Full HTTP/HTTPS inspection (فحص البروتوكولات وإعادة التوجيه).
-    *   DNS & IP Infrastructure mapping (تحليل سجلات النطاق والبنية التحتية).
-    *   Common Port Discovery (اكتشاف المنافذ المفتوحة).
-*   **🛡️ Security Posture (التحليل الأمني)**:
-    *   Security Headers Audit (HSTS, CSP, etc.).
-    *   TLS/SSL Certificate Verification (فحص شهادات الأمان والتشفير).
-    *   CORS & Cookie Security (تحليل سياسات المشاركة وخصائص الكوكيز).
-*   **📊 Intelligent Reporting (تقارير ذكية)**:
-    *   Mapped to **OWASP Top 10** (ربط الثغرات بمعايير أواسب العالمية).
-    *   Actionable Remediation Steps (خطوات عملية للإصلاح).
-    *   Interactive HTML & JSON Exports (تصدير التقارير بصيغ متعددة).
-
----
-
-## 🛠️ Project Structure | هيكل المشروع
-
-| File | Description | الوصف |
-| :--- | :--- | :--- |
-| `app.py` | Main Entry Point | نقطة التشغيل الرئيسية |
-| `scanner.py` | Core Engine | محرك الفحص الأساسي |
-| `advanced_scanner.py` | Vulnerability Logic | منطق كشف الثغرات المتقدم |
-| `report_renderer.py` | Report Generator | مولد التقارير الاحترافية |
-| `demo/` | Live Demo Files | ملفات العرض المباشر |
-
----
-
-## ⚖️ Legal Notice | تنبيه قانوني
-This tool is for **authorized defensive use only**. Unauthorized scanning is illegal.
-هذه الأداة مخصصة **للاستخدام الدفاعي والأكاديمي المصرح به فقط**. الاستخدام غير المصرح به يعرضك للمسؤولية القانونية.
-
----
-<div align="center">
-  <sub>Developed as part of Project Zakaria. Dedicated to advancing defensive security research.</sub>
-</div>
-< Last Updated: Sun May  3 01:12:17 EDT 2026 -->
+**Built with precision. Secured by design.**
