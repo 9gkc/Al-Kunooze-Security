@@ -2,6 +2,8 @@
 
 # Al-Kunooze Security
 
+> **Live demo:** [Open Al-Kunooze-Security in your browser](https://9gkc.github.io/Al-Kunooze-Security/)
+
 **Al-Kunooze Security** is a defensive, passive security assessment platform for authorized web targets. It combines a React workspace with an Express API to inspect public DNS, HTTPS reachability, response timing, and browser-facing security headers, then turns the observed evidence into a scored JSON report.
 
 ![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss) ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite) ![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express)
