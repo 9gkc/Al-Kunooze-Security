@@ -39,6 +39,24 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
+function validateTarget(value: string) {
+  const raw = value.trim();
+  if (!raw) return "Enter a domain or URL to scan.";
+  if (raw.length > 2_048) return "The target URL is too long.";
+
+  try {
+    const candidate = /^[a-z][a-z\d+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const url = new URL(candidate);
+    if (!["http:", "https:"].includes(url.protocol)) return "Only HTTP and HTTPS targets are supported.";
+    if (url.username || url.password) return "Targets containing credentials are not accepted.";
+    if (url.port && !["80", "443"].includes(url.port)) return "Only standard HTTP and HTTPS ports are supported.";
+    if (!url.hostname || url.hostname.length > 253) return "Enter a valid public hostname.";
+  } catch {
+    return "Enter a valid domain or URL.";
+  }
+  return "";
+}
+
 export default function Scanner() {
   const [target, setTarget] = useState("");
   const [profile, setProfile] = useState<ScanProfile>("deep");
@@ -50,10 +68,17 @@ export default function Scanner() {
   const [error, setError] = useState("");
 
   const runScan = useCallback(async () => {
-    if (!target.trim() || !authorizationConfirmed || scanning) return;
+    if (!authorizationConfirmed || scanning) return;
+    const targetError = validateTarget(target);
+    if (targetError) {
+      setError(targetError);
+      return;
+    }
+
     setScanning(true);
     setError("");
     setProgress(4);
+    setStageLabel(scanStages[0].label);
     setResult(null);
 
     let stage = 0;
@@ -114,8 +139,10 @@ export default function Scanner() {
                     onChange={(event) => setTarget(event.target.value)}
                     placeholder="example.com or https://example.com"
                     className="pl-12 h-12 bg-background/50 border-border text-base"
-                    onKeyDown={(event) => event.key === "Enter" && runScan()}
+                    maxLength={2048}
+                    autoComplete="url"
                     aria-label="Target domain or URL"
+                    aria-describedby="target-help"
                   />
                 </div>
                 <Select value={profile} onValueChange={(value) => setProfile(value as ScanProfile)}>
@@ -133,6 +160,8 @@ export default function Scanner() {
                   {scanning ? "Scanning" : "Run Scan"}
                 </Button>
               </div>
+
+              <p id="target-help" className="mt-2 text-xs text-muted-foreground">Use a public domain or URL. Private addresses, credentials, and non-standard ports are blocked.</p>
 
               <label className="flex items-start gap-3 mt-5 text-sm text-muted-foreground cursor-pointer">
                 <Checkbox checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} className="mt-0.5" />
@@ -152,7 +181,7 @@ export default function Scanner() {
               </AnimatePresence>
 
               {error && (
-                <div role="alert" className="mt-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                <div role="alert" aria-live="assertive" className="mt-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                   <AlertTriangle className="w-5 h-5 shrink-0 text-red-400" />
                   <div><p className="font-semibold">Scan unavailable</p><p className="mt-1 text-red-200/80">{error}</p></div>
                 </div>
@@ -176,6 +205,7 @@ export default function Scanner() {
                 <div className="flex items-center gap-5">
                   <div className="text-center"><p className={`font-display font-bold text-4xl ${scoreTone(result.score)}`}>{result.score}</p><p className="text-xs text-muted-foreground">/100</p></div>
                   <Badge variant="outline" className="border-primary/30 text-primary">{result.posture}</Badge>
+                  <Button variant="outline" className="border-border" onClick={() => { setResult(null); setProgress(0); setStageLabel(""); setError(""); }}><RefreshCcw className="w-4 h-4 mr-2" />New Scan</Button>
                   <a href={downloadScanUrl(result.id)} download><Button variant="outline" className="border-border"><Download className="w-4 h-4 mr-2" />Export JSON</Button></a>
                 </div>
               </div>

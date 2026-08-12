@@ -16,10 +16,37 @@ const dataDirectory = path.resolve(process.cwd(), ".data");
 const scansFile = path.join(dataDirectory, "scans.json");
 const maxStoredScans = 50;
 const maxResponseBytes = 1_048_576;
+const maxTargetLength = 2_048;
+const scanRateWindowMs = 5 * 60 * 1_000;
+const maxScansPerWindow = 10;
+const scanRateLimits = new Map<string, { count: number; resetAt: number }>();
 
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "32kb" }));
+app.use("/api", (_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
+
+function clientAddress(req: Request) {
+  return req.socket.remoteAddress || "unknown";
+}
+
+function exceedsScanRateLimit(req: Request) {
+  const now = Date.now();
+  const key = clientAddress(req);
+  const current = scanRateLimits.get(key);
+  if (!current || current.resetAt <= now) {
+    scanRateLimits.set(key, { count: 1, resetAt: now + scanRateWindowMs });
+    return false;
+  }
+  current.count += 1;
+  return current.count > maxScansPerWindow;
+}
 
 function jsonError(res: Response, status: number, message: string) {
   return res.status(status).json({ error: message });
@@ -54,6 +81,10 @@ function normalizeTarget(input: unknown) {
   }
 
   const raw = input.trim();
+  if (raw.length > maxTargetLength) {
+    throw new Error("The target URL is too long.");
+  }
+
   const candidate = /^[a-z][a-z\d+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
   const url = new URL(candidate);
 
@@ -62,6 +93,12 @@ function normalizeTarget(input: unknown) {
   }
   if (url.username || url.password) {
     throw new Error("Targets containing credentials are not accepted.");
+  }
+  if (url.hostname.length > 253) {
+    throw new Error("The target hostname is too long.");
+  }
+  if (url.port && !["80", "443"].includes(url.port)) {
+    throw new Error("Only standard HTTP and HTTPS ports are supported.");
   }
   if (url.hostname === "localhost" || url.hostname.endsWith(".local") || url.hostname.endsWith(".internal")) {
     throw new Error("Private and local targets are blocked for safety.");
@@ -276,6 +313,10 @@ app.get("/api/scans/:id/download", async (req, res) => {
 });
 
 app.post("/api/scans", async (req: Request, res: Response) => {
+  if (exceedsScanRateLimit(req)) {
+    return jsonError(res, 429, "Too many scans from this address. Please wait a few minutes and try again.");
+  }
+
   if (req.body?.authorizationConfirmed !== true) {
     return jsonError(res, 400, "Confirm that you own the target or have explicit authorization to scan it.");
   }
