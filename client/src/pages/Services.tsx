@@ -15,21 +15,21 @@ const fadeIn = {
 };
 
 const services = [
-  { icon: Scan, title: "Vulnerability Assessment", desc: "Comprehensive automated scanning of web applications to identify security weaknesses, misconfigurations, and potential attack vectors across your entire infrastructure.", features: ["OWASP Top 10 Analysis", "Automated Deep Scanning", "Multi-Layer Detection", "Real-time Monitoring"] },
-  { icon: Shield, title: "Penetration Testing", desc: "Manual and automated penetration testing services simulating real-world attack scenarios to validate your security controls and identify exploitable vulnerabilities.", features: ["Black-box Testing", "Gray-box Testing", "White-box Testing", "Social Engineering"] },
-  { icon: Network, title: "Network Security", desc: "Comprehensive network infrastructure assessment including firewall analysis, port scanning, service enumeration, and network topology mapping.", features: ["Port Scanning", "Firewall Analysis", "Network Mapping", "Protocol Analysis"] },
-  { icon: Code, title: "Code Security Review", desc: "In-depth source code analysis to identify security flaws, insecure coding practices, and potential vulnerabilities before deployment.", features: ["Static Analysis", "Dependency Auditing", "Secret Detection", "Secure Coding Guidelines"] },
-  { icon: FileSearch, title: "Security Reporting", desc: "Professional, academic-grade security reports with executive summaries, technical details, risk assessments, and actionable remediation recommendations.", features: ["Executive Summaries", "Risk Scoring", "Remediation Plans", "Compliance Mapping"] },
-  { icon: Eye, title: "Continuous Monitoring", desc: "24/7 security monitoring and alerting for your web applications and infrastructure, providing real-time threat detection and response capabilities.", features: ["Real-time Alerts", "Anomaly Detection", "Incident Response", "Threat Intelligence"] },
-  { icon: Server, title: "Infrastructure Hardening", desc: "Comprehensive server and infrastructure security hardening including OS-level configurations, service security, and access control optimization.", features: ["OS Hardening", "Service Configuration", "Access Control", "Encryption Setup"] },
-  { icon: KeyRound, title: "Authentication & Access", desc: "Security assessment and implementation of authentication systems, access control mechanisms, and identity management solutions.", features: ["MFA Implementation", "OAuth/SSO Setup", "RBAC Design", "Session Management"] },
+  { icon: Scan, title: "Passive Web Assessment", desc: "A safe external review of an authorized domain that checks reachability, HTTPS behavior, response timing, and browser-facing security headers.", features: ["DNS Resolution", "HTTPS and Redirect Checks", "Header Risk Review", "Severity-ranked Findings"] },
+  { icon: Shield, title: "Security Evidence Reports", desc: "Structured reports turn observed response evidence into an understandable posture score and a prioritized remediation roadmap.", features: ["Executive Summary", "Posture Scoring", "Finding Recommendations", "JSON Export"] },
+  { icon: Network, title: "Public Surface Context", desc: "Understand the public network context of a target without intrusive port sweeps, exploit payloads, or changes to the target.", features: ["Public IP Addresses", "Reverse DNS", "Response Timing", "Observed URL Services"] },
+  { icon: Code, title: "Safe Assessment Boundary", desc: "The scanner explicitly avoids source-code access, exploit payloads, credential handling, and target modification.", features: ["No Exploitation", "No Credentials", "No Intrusive Sweep", "Clear Scope"] },
+  { icon: FileSearch, title: "Security Reporting", desc: "Each completed scan becomes a timestamped report with technical evidence, risk scoring, and actionable remediation recommendations.", features: ["Executive Summary", "Risk Scoring", "Remediation Plans", "JSON Download"] },
+  { icon: Eye, title: "Review Workspace", desc: "Browse previous local assessments, filter by posture, open full findings, and refresh the report list as new scans complete.", features: ["All Reports", "Needs Attention", "Strong Posture", "Refreshable List"] },
+  { icon: Server, title: "Service Health", desc: "A lightweight health endpoint makes the platform easier to operate and gives the home page a live API status indicator.", features: ["Health Endpoint", "Express Runtime", "Unified Dev Server", "Production Build"] },
+  { icon: KeyRound, title: "Authorization Gate", desc: "Every scan request requires an explicit authorization confirmation and rejects local or private network targets.", features: ["Explicit Consent", "Private IP Blocking", "Target Validation", "Safe Errors"] },
 ];
 
 const processSteps = [
-  { step: "01", title: "Discovery", desc: "Initial assessment of your infrastructure, defining scope, and identifying critical assets and attack surfaces." },
-  { step: "02", title: "Analysis", desc: "Deep scanning and analysis using advanced tools and methodologies to identify vulnerabilities and security gaps." },
-  { step: "03", title: "Reporting", desc: "Comprehensive documentation of findings with risk scores, impact analysis, and prioritized remediation recommendations." },
-  { step: "04", title: "Remediation", desc: "Guided implementation of security fixes with ongoing validation and re-testing to ensure vulnerabilities are resolved." },
+  { step: "01", title: "Authorize", desc: "Confirm ownership or explicit permission and provide the public domain or URL you want to assess." },
+  { step: "02", title: "Observe", desc: "Resolve public DNS, fetch one controlled response, and evaluate HTTPS behavior and browser security headers." },
+  { step: "03", title: "Report", desc: "Generate a timestamped report with posture scoring, severity-ranked findings, evidence, and remediation guidance." },
+  { step: "04", title: "Improve", desc: "Apply the recommendations in your own environment, then repeat the assessment to validate the changes." },
 ];
 
 export default function Services() {
@@ -50,7 +50,7 @@ export default function Services() {
               Comprehensive Security <span className="text-gradient-cyan">Solutions</span>
             </h1>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              From vulnerability assessment to continuous monitoring, we provide end-to-end cybersecurity services designed to protect your digital infrastructure against evolving threats.
+              From passive target assessment to exportable evidence, the platform provides a focused security workflow designed to protect authorized digital infrastructure without intrusive testing.
             </p>
           </motion.div>
         </div>
@@ -109,7 +109,7 @@ export default function Services() {
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} custom={0} variants={fadeIn} className="bg-card/60 border border-border rounded-2xl p-8 lg:p-12 text-center backdrop-blur-sm">
             <h2 className="font-display font-bold text-2xl lg:text-3xl mb-4">Ready to Strengthen Your Security Posture?</h2>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Start with a free deep scan to understand your current security level and receive actionable recommendations.</p>
+              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Start with a free passive assessment to understand your public security posture and receive actionable recommendations.</p>
             <Link href="/scanner">
               <Button className="bg-primary text-background hover:bg-primary/90 font-semibold px-8 shadow-lg shadow-primary/25">
                 Start Free Scan <ChevronRight className="w-4 h-4 ml-2" />

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.manus-logs/
+.data/
+.env
+.env.*
+!.env.example
+.DS_Store
