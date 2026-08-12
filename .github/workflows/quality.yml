@@ -1,0 +1,76 @@
+name: Quality
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          ignored = {".git", "node_modules", "dist", "build", ".venv", "venv"}
+          for path in Path(".").rglob("*.json"):
+              if any(part in ignored for part in path.parts):
+                  continue
+              with path.open(encoding="utf-8") as handle:
+                  json.load(handle)
+              print(f"valid JSON: {path}")
+          PY
+
+      - name: Setup Node.js
+        if: ${{ hashFiles('package.json', '**/package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        if: ${{ hashFiles('pnpm-lock.yaml', '**/pnpm-lock.yaml') != '' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+          run_install: false
+
+      - name: Install JavaScript dependencies
+        if: ${{ hashFiles('package.json', 'pnpm-lock.yaml') != '' }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check JavaScript project
+        if: ${{ hashFiles('package.json', 'pnpm-lock.yaml') != '' }}
+        run: pnpm run check
+
+      - name: Build JavaScript project
+        if: ${{ hashFiles('package.json', 'pnpm-lock.yaml') != '' }}
+        run: pnpm run build
+
+      - name: Check standalone JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -type f -name '*.js' -not -path './.git/*' -not -path './node_modules/*' -not -path './dist/*' -not -path './build/*' -print0)
+
+      - name: Check Python syntax
+        if: ${{ hashFiles('**/*.py') != '' }}
+        run: python -m compileall -q .
