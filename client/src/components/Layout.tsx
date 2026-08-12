@@ -132,9 +132,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-                Advanced cybersecurity platform providing deep defensive scanning, 
-                vulnerability assessment, and comprehensive security intelligence 
-                for authorized web applications.
+                Passive security assessment platform providing public DNS, HTTPS,
+                header evidence, posture scoring, and exportable reports for authorized targets.
               </p>
             </div>
             <div>
@@ -156,7 +155,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-muted-foreground text-xs">
-              2024 Al-Kunooze Security. All rights reserved. For defensive, academic, and research use only.
+              © {new Date().getFullYear()} Al-Kunooze Security. All rights reserved. For defensive, academic, and research use only.
             </p>
             <p className="text-muted-foreground text-xs font-mono">
               Built with precision. Secured by design.

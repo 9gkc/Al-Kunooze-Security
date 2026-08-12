@@ -18,7 +18,7 @@ const values = [
   { icon: Code, title: "Open Intelligence", desc: "Transparent methodologies and open-source tools empower the broader security community." },
 ];
 
-const techStack = ["Python 3.11+", "React 19", "TypeScript", "Tailwind CSS", "Nuclei", "OWASP ZAP", "Docker", "Redis", "PostgreSQL", "FastAPI", "JWT Auth", "CI/CD"];
+const techStack = ["React 19", "TypeScript", "Vite 7", "Tailwind CSS 4", "Express", "Node.js", "Public DNS", "HTTPS Headers", "JSON Reports", "Framer Motion", "Wouter", "Vitest-ready"];
 
 export default function About() {
   return (
@@ -46,10 +46,10 @@ export default function About() {
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} custom={1} variants={fadeIn}>
               <h2 className="font-display font-bold text-3xl mb-6">Our <span className="text-gradient-cyan">Mission</span></h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                We believe that every organization deserves access to professional-grade security assessment tools. Al-Kunooze Security provides comprehensive vulnerability scanning, penetration testing methodologies, and actionable security intelligence — all designed with a defensive mindset.
+                We believe that every organization deserves access to understandable security evidence. Al-Kunooze Security currently focuses on passive external assessment: public DNS resolution, HTTPS reachability, response headers, response timing, and actionable remediation guidance — all designed with a defensive mindset.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                Our platform combines automated scanning engines with academic research methodologies to deliver reports that are both technically detailed and accessible to decision-makers. We focus exclusively on authorized defensive security assessment.
+                The platform combines an Express API with a React workspace to turn each authorized assessment into a timestamped JSON report that teams can review and export. It does not exploit vulnerabilities, perform intrusive port sweeps, or modify targets.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button className="bg-primary text-background hover:bg-primary/90 font-semibold">

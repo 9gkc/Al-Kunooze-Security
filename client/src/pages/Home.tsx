@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { healthCheck } from "@/lib/api";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20, scale: 0.97 },
@@ -33,19 +35,25 @@ const features = [
   { icon: Scan, title: "Deep Vulnerability Scanning", desc: "Comprehensive analysis of web applications including DNS, ports, TLS, security headers, and known vulnerability patterns." },
   { icon: FileSearch, title: "Academic-Grade Reports", desc: "Professional reports with executive summaries, attacker/defender perspectives, and actionable remediation steps." },
   { icon: Lock, title: "Authorized Defense Only", desc: "Built exclusively for defensive security. Scans only authorized targets with strict ethical guidelines." },
-  { icon: Bug, title: "OWASP Top 10 Detection", desc: "Identifies SQL injection, XSS, path traversal, CSRF, and other critical vulnerabilities aligned with OWASP standards." },
-  { icon: Network, title: "Network Surface Analysis", desc: "Maps the complete attack surface including IP addresses, open ports, DNS records, and reverse lookups." },
-  { icon: Terminal, title: "Multi-Tool Integration", desc: "Simulates advanced external tool chains including Nuclei, ZAP, and custom deep-scanner modules." },
+  { icon: Bug, title: "Header Risk Detection", desc: "Evaluates transport and browser security headers, then explains the practical impact of every missing control." },
+  { icon: Network, title: "Public Surface Evidence", desc: "Resolves public DNS records and records response timing without intrusive port sweeps or exploit payloads." },
+  { icon: Terminal, title: "Exportable Evidence", desc: "Keeps each completed assessment as a structured JSON report your team can review and export." },
 ];
 
 const stats = [
-  { value: "10,000+", label: "Scans Completed" },
-  { value: "500+", label: "Vulnerabilities Detected" },
-  { value: "99.9%", label: "Accuracy Rate" },
-  { value: "24/7", label: "Availability" },
+  { value: "Passive", label: "Assessment mode" },
+  { value: "DNS + TLS", label: "Public evidence" },
+  { value: "JSON", label: "Report export" },
+  { value: "No exploit", label: "Safety boundary" },
 ];
 
 export default function Home() {
+  const [serviceOnline, setServiceOnline] = useState(false);
+
+  useEffect(() => {
+    healthCheck().then(() => setServiceOnline(true)).catch(() => setServiceOnline(false));
+  }, []);
+
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
@@ -62,6 +70,10 @@ export default function Home() {
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Zap className="w-4 h-4" />
                 Advanced Cybersecurity Platform
+                <span className={`ml-1 inline-flex items-center gap-1 text-xs ${serviceOnline ? "text-emerald-300" : "text-muted-foreground"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${serviceOnline ? "bg-emerald-400" : "bg-slate-500"}`} />
+                  {serviceOnline ? "API online" : "API checking"}
+                </span>
               </span>
             </motion.div>
 
@@ -230,10 +242,10 @@ export default function Home() {
               </p>
               <div className="space-y-4">
                 {[
-                  "Multi-layer scanning: DNS, Ports, TLS, Headers, Paths",
-                  "OWASP Top 10 vulnerability detection and classification",
-                  "Professional reports with attacker and defender perspectives",
-                  "Authorized defense mode for ethical security assessment",
+                  "Public DNS resolution and target reachability",
+                  "HTTPS, redirect, and browser security header evaluation",
+                  "Severity-ranked findings with practical recommendations",
+                  "Authorized passive assessment with no exploit payloads",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
@@ -268,16 +280,15 @@ export default function Home() {
                 </div>
                 <div className="font-mono text-sm space-y-2">
                   <p className="text-primary">$ ak-scan --target example.com --profile deep</p>
-                  <p className="text-muted-foreground">Initializing deep scan engine...</p>
-                  <p className="text-emerald-400">[+] DNS resolution: 93.184.216.34</p>
-                  <p className="text-emerald-400">[+] HTTPS enabled: TLS 1.3</p>
-                  <p className="text-emerald-400">[+] Security headers: 12/14 configured</p>
-                  <p className="text-yellow-400">[!] Missing: X-Content-Type-Options</p>
-                  <p className="text-emerald-400">[+] No open sensitive ports detected</p>
-                  <p className="text-emerald-400">[+] CSRF protection: Present</p>
-                  <p className="text-yellow-400">[!] SQL injection potential: 2 endpoints</p>
-                  <p className="text-muted-foreground">Generating comprehensive report...</p>
-                  <p className="text-primary">Scan complete. Score: 78/100</p>
+                  <p className="text-muted-foreground">Waiting for an authorized target...</p>
+                  <p className="text-emerald-400">[+] DNS resolution and reachability</p>
+                  <p className="text-emerald-400">[+] HTTPS and redirect inspection</p>
+                  <p className="text-emerald-400">[+] Security header evaluation</p>
+                  <p className="text-yellow-400">[!] Findings ranked by practical severity</p>
+                  <p className="text-emerald-400">[+] No exploit payloads sent</p>
+                  <p className="text-emerald-400">[+] JSON report persisted locally</p>
+                  <p className="text-muted-foreground">Evidence is ready for review...</p>
+                  <p className="text-primary">Assessment complete. Review the report.</p>
                 </div>
               </div>
             </motion.div>
