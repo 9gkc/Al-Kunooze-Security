@@ -15,6 +15,7 @@ const port = Number(process.env.PORT || 3000);
 const dataDirectory = path.resolve(process.cwd(), ".data");
 const scansFile = path.join(dataDirectory, "scans.json");
 const maxStoredScans = 50;
+const maxResponseBytes = 1_048_576;
 
 const app = express();
 app.disable("x-powered-by");
@@ -110,6 +111,31 @@ function addFinding(
   findings.push({ severity, category, title, description, recommendation });
 }
 
+async function consumeResponseBody(response: globalThis.Response) {
+  const announcedLength = Number(response.headers.get("content-length") || 0);
+  if (announcedLength > maxResponseBytes) {
+    await response.body?.cancel();
+    throw new Error("The target response is larger than the passive scan limit.");
+  }
+
+  if (!response.body) return;
+  const reader = response.body.getReader();
+  let bytesRead = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytesRead += value.byteLength;
+      if (bytesRead > maxResponseBytes) {
+        await reader.cancel();
+        throw new Error("The target response is larger than the passive scan limit.");
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 async function runPassiveScan(target: string, profile: ScanProfile): Promise<ScanResult> {
   const { url, hostname } = normalizeTarget(target);
   const startedAt = performance.now();
@@ -132,10 +158,13 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
         Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.1",
       },
     });
+    await consumeResponseBody(response);
   } catch (error) {
     const message = error instanceof Error && error.name === "AbortError"
       ? "The target did not respond within 10 seconds."
-      : "The target could not be reached from the scanning service.";
+      : error instanceof Error && error.message.includes("passive scan limit")
+        ? error.message
+        : "The target could not be reached from the scanning service.";
     throw new Error(message);
   } finally {
     clearTimeout(timeout);
