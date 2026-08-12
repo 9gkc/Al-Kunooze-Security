@@ -46,7 +46,7 @@ jobs:
 
       - name: Setup pnpm
         if: ${{ hashFiles('pnpm-lock.yaml', '**/pnpm-lock.yaml') != '' }}
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           run_install: false
 
