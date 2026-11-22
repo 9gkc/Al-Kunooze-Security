@@ -6,7 +6,7 @@
 
 **Al-Kunooze Security** is a defensive, passive security assessment platform for authorized web targets. It combines a React workspace with an Express API to inspect public DNS, HTTPS reachability, response timing, and browser-facing security headers, then turns the observed evidence into a scored JSON report.
 
-![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss) ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite) ![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express)
+![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss) ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite) ![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ## Product scope
 
@@ -34,12 +34,14 @@ The current implementation is intentionally **passive and authorization-gated**.
 | Production server | Bundled Node.js/Express server serving the Vite build |
 | Persistence | Local JSON file at `.data/scans.json` |
 | Validation | TypeScript compiler and Git diff checks |
+| Container | Docker + Docker Compose |
 
 ## Getting started
 
 ### Requirements
 
-Use Node.js 20 or newer and pnpm. The repository includes a `pnpm-lock.yaml`; install dependencies from the repository root.
+- Node.js 20 or newer
+- pnpm
 
 ```bash
 git clone https://github.com/9gkc/Al-Kunooze-Security.git
@@ -50,13 +52,13 @@ cp .env.example .env
 
 ### Development
 
-The development command starts the Express API and mounts Vite middleware on the same port. The default address is `http://localhost:3000`.
-
 ```bash
 pnpm dev
 ```
 
-The following checks are useful before committing changes:
+The application will be available at `http://localhost:3000`.
+
+Useful checks before committing:
 
 ```bash
 pnpm check
@@ -65,20 +67,26 @@ git diff --check
 
 ### Production build
 
-Build the frontend and bundle the server, then run the generated server with `NODE_ENV=production`.
-
 ```bash
 pnpm build
 NODE_ENV=production pnpm start
 ```
 
-The port can be changed with `PORT`:
+Change the port with the `PORT` environment variable:
 
 ```bash
 PORT=8080 NODE_ENV=production pnpm start
 ```
 
-Reports are persisted to `.data/scans.json`. This is suitable for a local or single-instance deployment. A multi-user production deployment should replace this file store with a database and add authentication, authorization, rate limiting, and encrypted audit storage before exposing the service publicly.
+### Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+The service will be available at `http://localhost:3000`. Scan data is persisted in a named volume.
 
 ## API reference
 
@@ -122,7 +130,7 @@ The current application does not include user accounts, a database, a job queue,
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
 
 ## Author
 
