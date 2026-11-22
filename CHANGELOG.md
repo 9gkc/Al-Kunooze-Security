@@ -11,16 +11,21 @@ All notable changes to Al-Kunooze Security are documented in this file.
 - Carrier-grade NAT and multicast address blocking in private IP detection
 - Rate-limit map cleanup to prevent unbounded growth
 - Version field in health endpoint
+- Docker healthcheck
+- `.dockerignore` for cleaner builds
+- Improved `docker-compose.yml` with healthcheck configuration
 
 ### Changed
 - User-Agent updated to reflect version 1.1
 - Stricter URL parsing with clearer error messages
 - Improved private/local hostname blocking
+- README updated to reflect current capabilities and version 1.1
 
 ### Security
 - Strengthened default response headers
 - More robust input validation and private address filtering
 - Safer file persistence for scan reports
+- Non-root container user with dedicated data directory ownership
 
 ## [1.0.0] - 2026-05
 
