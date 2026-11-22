@@ -1,11 +1,50 @@
 # Contributing
 
-Thank you for helping improve this project. Before making a change, review the README and existing issues, then keep the scope focused and explain the user or security value of the change.
+Thank you for helping improve Al-Kunooze Security.
 
-## Development standards
+## Before You Start
 
-Use clear names, small cohesive changes, accessible interfaces, and safe DOM or data handling. Do not commit secrets, generated dependencies, build output, local configuration, or personal data. Update documentation when behavior changes.
+- Read the README and this document.
+- Review existing issues and open pull requests.
+- Keep changes focused and explain the user or security value.
+
+## Development Standards
+
+- Use clear, descriptive names.
+- Prefer small, cohesive changes.
+- Maintain accessible interfaces.
+- Handle data and the DOM safely.
+- Never commit secrets, `.env` files, `node_modules`, build output, or personal data.
+- Update documentation whenever behavior changes.
+- Keep all project content in English.
+
+## Setup
+
+```bash
+git clone https://github.com/9gkc/Al-Kunooze-Security.git
+cd Al-Kunooze-Security
+pnpm install
+cp .env.example .env
+pnpm dev
+```
 
 ## Validation
 
-Run the checks documented in the README and make sure the working tree is clean before opening a pull request. A pull request should describe the problem, the solution, the validation performed, and any known limitations. Screenshots or a short recording are helpful for user-interface changes.
+Before opening a pull request, run:
+
+```bash
+pnpm check
+git diff --check
+```
+
+A good pull request describes:
+- The problem being solved
+- The solution
+- Validation performed
+- Any known limitations
+
+Screenshots or a short recording are helpful for user-interface changes.
+
+## Scope Boundaries
+
+Do not add intrusive scanning, exploit payloads, credential handling, or any feature that would violate the passive and authorization-first design of this tool.
