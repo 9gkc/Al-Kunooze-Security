@@ -25,7 +25,6 @@ const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "32kb" }));
 
-// Global security headers for every response
 app.use((_req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -181,6 +180,45 @@ function addFinding(
   findings.push({ severity, category, title, description, recommendation });
 }
 
+function evaluateCsp(value: string, findings: ScanFinding[], strengths: ScanResult["strengths"]) {
+  const lower = value.toLowerCase();
+  strengths.push({
+    title: "Content Security Policy configured",
+    description: "The response includes a Content-Security-Policy header.",
+  });
+
+  if (lower.includes("unsafe-inline")) {
+    addFinding(
+      findings,
+      "low",
+      "Security Headers",
+      "CSP allows unsafe-inline",
+      "The Content-Security-Policy includes 'unsafe-inline', which weakens XSS mitigations.",
+      "Prefer nonces or hashes instead of 'unsafe-inline' for script and style sources where practical.",
+    );
+  }
+  if (lower.includes("unsafe-eval")) {
+    addFinding(
+      findings,
+      "low",
+      "Security Headers",
+      "CSP allows unsafe-eval",
+      "The Content-Security-Policy includes 'unsafe-eval'.",
+      "Remove 'unsafe-eval' unless a specific dependency requires it, and isolate that use case.",
+    );
+  }
+  if (lower.includes("*") && !lower.includes("*.")) {
+    addFinding(
+      findings,
+      "info",
+      "Security Headers",
+      "CSP uses a broad wildcard",
+      "The Content-Security-Policy appears to allow a broad wildcard source.",
+      "Tighten CSP source lists to explicit trusted origins where possible.",
+    );
+  }
+}
+
 async function consumeResponseBody(response: globalThis.Response) {
   const announcedLength = Number(response.headers.get("content-length") || 0);
   if (announcedLength > maxResponseBytes) {
@@ -269,7 +307,6 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
     });
   }
 
-  // HSTS quality analysis
   const hstsValue = headers.get("strict-transport-security");
   if (enforcedHttps) {
     if (!hstsValue) {
@@ -313,21 +350,50 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
     }
   }
 
+  const csp = headers.get("content-security-policy");
+  if (!csp) {
+    score -= 10;
+    addFinding(
+      findings,
+      "medium",
+      "Security Headers",
+      "Missing Content Security Policy",
+      "The response does not include the content-security-policy header.",
+      "Define a restrictive Content-Security-Policy and roll it out with report-only monitoring first.",
+    );
+  } else {
+    evaluateCsp(csp, findings, strengths);
+  }
+
+  const xcto = headers.get("x-content-type-options");
+  if (!xcto) {
+    score -= 6;
+    addFinding(
+      findings,
+      "low",
+      "Security Headers",
+      "Missing Content-Type protection",
+      "The response does not include the x-content-type-options header.",
+      "Add X-Content-Type-Options: nosniff to responses.",
+    );
+  } else if (xcto.toLowerCase() !== "nosniff") {
+    score -= 3;
+    addFinding(
+      findings,
+      "low",
+      "Security Headers",
+      "X-Content-Type-Options is not nosniff",
+      `The header is present but set to "${xcto.slice(0, 40)}" instead of nosniff.`,
+      "Set X-Content-Type-Options: nosniff.",
+    );
+  } else {
+    strengths.push({
+      title: "Content-Type protection configured",
+      description: "The response includes X-Content-Type-Options: nosniff.",
+    });
+  }
+
   const headerChecks = [
-    {
-      name: "content-security-policy",
-      label: "Content Security Policy",
-      severity: "medium" as Severity,
-      penalty: 10,
-      recommendation: "Define a restrictive Content-Security-Policy and roll it out with report-only monitoring first.",
-    },
-    {
-      name: "x-content-type-options",
-      label: "Content-Type protection",
-      severity: "low" as Severity,
-      penalty: 6,
-      recommendation: "Add X-Content-Type-Options: nosniff to responses.",
-    },
     {
       name: "x-frame-options",
       label: "Clickjacking protection",
