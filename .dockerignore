@@ -1,0 +1,13 @@
+node_modules
+dist
+.data
+.manus-logs
+.git
+.github
+*.md
+.env
+.env.*
+!.env.example
+coverage
+.DS_Store
+*.log
