@@ -50,7 +50,6 @@ function exceedsScanRateLimit(req: Request) {
   const key = clientAddress(req);
   const current = scanRateLimits.get(key);
 
-  // Simple cleanup of expired entries to avoid unbounded growth
   if (scanRateLimits.size > 500) {
     for (const [k, v] of scanRateLimits) {
       if (v.resetAt <= now) scanRateLimits.delete(k);
@@ -80,7 +79,7 @@ function isPrivateIp(address: string) {
       (first === 192 && second === 168) ||
       (first === 169 && second === 254) ||
       first === 0 ||
-      (first === 100 && second >= 64 && second <= 127) // Carrier-grade NAT
+      (first === 100 && second >= 64 && second <= 127)
     );
   }
 
@@ -91,7 +90,7 @@ function isPrivateIp(address: string) {
     normalized.startsWith("fc") ||
     normalized.startsWith("fd") ||
     normalized.startsWith("fe80:") ||
-    normalized.startsWith("ff") // Multicast
+    normalized.startsWith("ff")
   );
 }
 
@@ -157,7 +156,6 @@ async function writeStoredScan(result: ScanResult) {
   const limited = scans.slice(0, maxStoredScans);
   await fs.mkdir(dataDirectory, { recursive: true });
 
-  // Atomic write: write to temp file then rename
   const tempFile = `${scansFile}.${randomUUID()}.tmp`;
   await fs.writeFile(tempFile, JSON.stringify(limited, null, 2), "utf8");
   await fs.rename(tempFile, scansFile);
@@ -226,7 +224,7 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
       redirect: "manual",
       signal: controller.signal,
       headers: {
-        "User-Agent": "Al-Kunooze-Security/1.1 (authorized passive assessment)",
+        "User-Agent": "Al-Kunooze-Security/1.2 (authorized passive assessment)",
         Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.1",
       },
     });
@@ -271,14 +269,51 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
     });
   }
 
+  // HSTS quality analysis
+  const hstsValue = headers.get("strict-transport-security");
+  if (enforcedHttps) {
+    if (!hstsValue) {
+      score -= 12;
+      addFinding(
+        findings,
+        "medium",
+        "Security Headers",
+        "Missing HSTS",
+        "The response does not include the Strict-Transport-Security header.",
+        "Set Strict-Transport-Security after validating HTTPS coverage across the domain.",
+      );
+    } else {
+      const maxAgeMatch = hstsValue.match(/max-age=(\d+)/i);
+      const maxAge = maxAgeMatch ? Number(maxAgeMatch[1]) : 0;
+      if (maxAge >= 31536000) {
+        strengths.push({
+          title: "Strong HSTS configuration",
+          description: `HSTS is present with a long max-age (${maxAge} seconds).`,
+        });
+      } else if (maxAge > 0) {
+        score -= 4;
+        addFinding(
+          findings,
+          "low",
+          "Security Headers",
+          "HSTS max-age is relatively short",
+          `HSTS is present but max-age is ${maxAge} seconds.`,
+          "Consider increasing HSTS max-age to at least one year (31536000) after confirming full HTTPS coverage.",
+        );
+        strengths.push({
+          title: "HSTS is configured",
+          description: "The response advertises HTTP Strict Transport Security.",
+        });
+      } else {
+        strengths.push({
+          title: "HSTS is configured",
+          description: "The response advertises HTTP Strict Transport Security.",
+        });
+      }
+    }
+  }
+
   const headerChecks = [
-    {
-      name: "strict-transport-security",
-      label: "HSTS",
-      severity: "medium" as Severity,
-      penalty: 12,
-      recommendation: "Set Strict-Transport-Security after validating HTTPS coverage.",
-    },
     {
       name: "content-security-policy",
       label: "Content Security Policy",
@@ -331,26 +366,6 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
   ];
 
   for (const check of headerChecks) {
-    if (enforcedHttps && check.name === "strict-transport-security") {
-      if (headers.get(check.name)) {
-        strengths.push({
-          title: "HSTS is configured",
-          description: "The response advertises HTTP Strict Transport Security.",
-        });
-      } else {
-        score -= check.penalty;
-        addFinding(
-          findings,
-          check.severity,
-          "Security Headers",
-          `Missing ${check.label}`,
-          `The response does not include the ${check.name} header.`,
-          check.recommendation,
-        );
-      }
-      continue;
-    }
-
     if (headers.get(check.name)) {
       strengths.push({
         title: `${check.label} configured`,
@@ -445,7 +460,7 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
 }
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "al-kunooze-security", version: "1.1", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "al-kunooze-security", version: "1.2", timestamp: new Date().toISOString() });
 });
 
 app.get("/api/scans", async (_req, res) => {
