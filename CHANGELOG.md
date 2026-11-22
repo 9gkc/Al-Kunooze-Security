@@ -2,31 +2,42 @@
 
 All notable changes to Al-Kunooze Security are documented in this file.
 
+## [1.2.0] - 2026-11-22
+
+### Added
+- Stronger API client with typed health response and clearer error messages
+- Version field consistency across health endpoint and package
+
+### Security & Hardening
+- Continued reinforcement of passive assessment boundaries
+- Atomic report storage
+- Expanded private address blocking (including CGNAT)
+- Global security response headers
+- Rate-limit cleanup
+
+### Operational
+- Docker healthcheck and improved compose configuration
+- Cleaner `.dockerignore`
+
 ## [1.1.0] - 2026-11-22
 
 ### Added
-- Additional passive security header checks (Cross-Origin-Opener-Policy, Cross-Origin-Resource-Policy)
-- Global security headers on all responses (X-Frame-Options, COOP, CORP, Permissions-Policy)
-- Atomic write for scan storage (temp file + rename) to reduce corruption risk
-- Carrier-grade NAT and multicast address blocking in private IP detection
-- Rate-limit map cleanup to prevent unbounded growth
+- Additional passive security header checks (COOP, CORP)
+- Global security headers on all responses
+- Atomic write for scan storage
+- Carrier-grade NAT and multicast address blocking
+- Rate-limit map cleanup
 - Version field in health endpoint
-- Docker healthcheck
-- `.dockerignore` for cleaner builds
-- Improved `docker-compose.yml` with healthcheck configuration
-- Stronger API client error handling and typed health response
+- Docker healthcheck and `.dockerignore`
 
 ### Changed
-- User-Agent updated to reflect version 1.1
-- Stricter URL parsing with clearer error messages
-- Improved private/local hostname blocking
-- README updated to reflect current capabilities and version 1.1
+- Stricter URL parsing and private/local hostname blocking
+- README and documentation updates
 
 ### Security
 - Strengthened default response headers
-- More robust input validation and private address filtering
-- Safer file persistence for scan reports
-- Non-root container user with dedicated data directory ownership
+- Safer file persistence
+- Non-root container user
 
 ## [1.0.0] - 2026-05
 
