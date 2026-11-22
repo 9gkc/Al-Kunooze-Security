@@ -6,7 +6,13 @@
 
 **Al-Kunooze Security** is a defensive, passive security assessment platform for authorized web targets. It combines a React workspace with an Express API to inspect public DNS, HTTPS reachability, response timing, and browser-facing security headers, then turns the observed evidence into a scored JSON report.
 
-![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss) ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite) ![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss)
+![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite)
+![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.1.0-blue?style=flat-square)
 
 ## Product scope
 
@@ -19,10 +25,10 @@ The current implementation is intentionally **passive and authorization-gated**.
 | Target input | HTTP/HTTPS domain or URL normalization |
 | Public DNS | IPv4/IPv6 lookup and reverse DNS context |
 | Transport | HTTPS detection and HTTP-to-HTTPS redirect observation |
-| Headers | HSTS, CSP, content type, clickjacking, referrer, and permissions checks |
+| Headers | HSTS, CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP |
 | Risk output | Severity-ranked findings, posture score, strengths, and remediation steps |
-| Reports | Local JSON persistence with list, detail, and download endpoints |
-| Safety controls | Authorization gate, private/local address blocking, request timeout, response size limit, and manual redirects |
+| Reports | Local JSON persistence (atomic writes) with list, detail, and download endpoints |
+| Safety controls | Authorization gate, private/local/CGNAT address blocking, request timeout, response size limit, rate limiting, manual redirects |
 
 ## Tech stack
 
@@ -32,7 +38,7 @@ The current implementation is intentionally **passive and authorization-gated**.
 | UI | Tailwind CSS 4, Radix/shadcn components, Lucide icons |
 | Development server | Express 5 with Vite middleware |
 | Production server | Bundled Node.js/Express server serving the Vite build |
-| Persistence | Local JSON file at `.data/scans.json` |
+| Persistence | Local JSON file at `.data/scans.json` (atomic writes) |
 | Validation | TypeScript compiler and Git diff checks |
 | Container | Docker + Docker Compose |
 
@@ -92,7 +98,7 @@ The service will be available at `http://localhost:3000`. Scan data is persisted
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/api/health` | Returns service status and timestamp |
+| `GET` | `/api/health` | Returns service status, version, and timestamp |
 | `GET` | `/api/scans` | Returns report summaries without full findings |
 | `GET` | `/api/scans/:id` | Returns one complete report |
 | `GET` | `/api/scans/:id/download` | Downloads one report as JSON |
@@ -124,9 +130,13 @@ Supported profiles are `quick`, `deep`, and `authorized_deep`. The current profi
 
 ## Data and operational notes
 
-Reports are intentionally stored locally and capped at the newest 50 records. The service applies a 10-second request timeout and blocks local, link-local, loopback, private IPv4, and private IPv6 targets. Redirects are observed rather than followed automatically, which keeps the assessment bounded to the submitted URL.
+Reports are intentionally stored locally and capped at the newest 50 records. Writes are atomic (temporary file + rename). The service applies a 10-second request timeout and blocks local, link-local, loopback, private IPv4, private IPv6, and carrier-grade NAT targets. Redirects are observed rather than followed automatically, which keeps the assessment bounded to the submitted URL.
 
 The current application does not include user accounts, a database, a job queue, a distributed worker, or a cloud deployment configuration. Those are appropriate next steps for a shared team product, but they should be added together with an access-control model and an operational privacy policy rather than implied by the current interface.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## License
 
