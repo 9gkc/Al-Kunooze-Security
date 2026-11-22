@@ -24,11 +24,20 @@ const scanRateLimits = new Map<string, { count: number; resetAt: number }>();
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "32kb" }));
+
+// Global security headers for every response
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  next();
+});
+
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   next();
 });
 
@@ -40,6 +49,14 @@ function exceedsScanRateLimit(req: Request) {
   const now = Date.now();
   const key = clientAddress(req);
   const current = scanRateLimits.get(key);
+
+  // Simple cleanup of expired entries to avoid unbounded growth
+  if (scanRateLimits.size > 500) {
+    for (const [k, v] of scanRateLimits) {
+      if (v.resetAt <= now) scanRateLimits.delete(k);
+    }
+  }
+
   if (!current || current.resetAt <= now) {
     scanRateLimits.set(key, { count: 1, resetAt: now + scanRateWindowMs });
     return false;
@@ -54,24 +71,27 @@ function jsonError(res: Response, status: number, message: string) {
 
 function isPrivateIp(address: string) {
   if (net.isIPv4(address)) {
-    const [first, second] = address.split(".").map(Number);
+    const parts = address.split(".").map(Number);
+    const [first, second] = parts;
     return (
       first === 10 ||
       first === 127 ||
       (first === 172 && second >= 16 && second <= 31) ||
       (first === 192 && second === 168) ||
       (first === 169 && second === 254) ||
-      first === 0
+      first === 0 ||
+      (first === 100 && second >= 64 && second <= 127) // Carrier-grade NAT
     );
   }
 
   const normalized = address.toLowerCase();
   return (
     normalized === "::1" ||
+    normalized === "::" ||
     normalized.startsWith("fc") ||
     normalized.startsWith("fd") ||
     normalized.startsWith("fe80:") ||
-    normalized === "::"
+    normalized.startsWith("ff") // Multicast
   );
 }
 
@@ -86,7 +106,12 @@ function normalizeTarget(input: unknown) {
   }
 
   const candidate = /^[a-z][a-z\d+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
-  const url = new URL(candidate);
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    throw new Error("The target is not a valid URL or domain.");
+  }
 
   if (!["http:", "https:"].includes(url.protocol)) {
     throw new Error("Only HTTP and HTTPS targets are supported.");
@@ -100,7 +125,12 @@ function normalizeTarget(input: unknown) {
   if (url.port && !["80", "443"].includes(url.port)) {
     throw new Error("Only standard HTTP and HTTPS ports are supported.");
   }
-  if (url.hostname === "localhost" || url.hostname.endsWith(".local") || url.hostname.endsWith(".internal")) {
+  if (
+    url.hostname === "localhost" ||
+    url.hostname.endsWith(".local") ||
+    url.hostname.endsWith(".internal") ||
+    url.hostname.endsWith(".localhost")
+  ) {
     throw new Error("Private and local targets are blocked for safety.");
   }
   if (isPrivateIp(url.hostname)) {
@@ -124,8 +154,13 @@ async function readStoredScans(): Promise<ScanResult[]> {
 async function writeStoredScan(result: ScanResult) {
   const scans = await readStoredScans();
   scans.unshift(result);
+  const limited = scans.slice(0, maxStoredScans);
   await fs.mkdir(dataDirectory, { recursive: true });
-  await fs.writeFile(scansFile, JSON.stringify(scans.slice(0, maxStoredScans), null, 2), "utf8");
+
+  // Atomic write: write to temp file then rename
+  const tempFile = `${scansFile}.${randomUUID()}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(limited, null, 2), "utf8");
+  await fs.rename(tempFile, scansFile);
 }
 
 async function getReverseName(address: string, fallback: string) {
@@ -191,17 +226,18 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
       redirect: "manual",
       signal: controller.signal,
       headers: {
-        "User-Agent": "Al-Kunooze-Security/1.0 (authorized passive assessment)",
+        "User-Agent": "Al-Kunooze-Security/1.1 (authorized passive assessment)",
         Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.1",
       },
     });
     await consumeResponseBody(response);
   } catch (error) {
-    const message = error instanceof Error && error.name === "AbortError"
-      ? "The target did not respond within 10 seconds."
-      : error instanceof Error && error.message.includes("passive scan limit")
-        ? error.message
-        : "The target could not be reached from the scanning service.";
+    const message =
+      error instanceof Error && error.name === "AbortError"
+        ? "The target did not respond within 10 seconds."
+        : error instanceof Error && error.message.includes("passive scan limit")
+          ? error.message
+          : "The target could not be reached from the scanning service.";
     throw new Error(message);
   } finally {
     clearTimeout(timeout);
@@ -209,64 +245,181 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
 
   const responseTime = Math.max(1, Math.round(performance.now() - startedAt));
   const headers = response.headers;
-  const enforcedHttps = url.protocol === "https:" || (response.status >= 300 && response.status < 400 && (headers.get("location") || "").startsWith("https://"));
+  const enforcedHttps =
+    url.protocol === "https:" ||
+    (response.status >= 300 &&
+      response.status < 400 &&
+      (headers.get("location") || "").startsWith("https://"));
   const findings: ScanFinding[] = [];
   const strengths: ScanResult["strengths"] = [];
   let score = 100;
 
   if (!enforcedHttps) {
     score -= 25;
-    addFinding(findings, "high", "Transport Security", "HTTPS is not enforced", "The supplied target does not demonstrate an HTTPS endpoint or an HTTPS redirect.", "Serve the application over HTTPS and redirect all HTTP traffic to the canonical secure origin.");
+    addFinding(
+      findings,
+      "high",
+      "Transport Security",
+      "HTTPS is not enforced",
+      "The supplied target does not demonstrate an HTTPS endpoint or an HTTPS redirect.",
+      "Serve the application over HTTPS and redirect all HTTP traffic to the canonical secure origin.",
+    );
   } else {
-    strengths.push({ title: "HTTPS endpoint detected", description: "The target is reachable over encrypted HTTPS transport." });
+    strengths.push({
+      title: "HTTPS endpoint detected",
+      description: "The target is reachable over encrypted HTTPS transport.",
+    });
   }
 
   const headerChecks = [
-    { name: "strict-transport-security", label: "HSTS", severity: "medium" as Severity, penalty: 12, recommendation: "Set Strict-Transport-Security after validating HTTPS coverage." },
-    { name: "content-security-policy", label: "Content Security Policy", severity: "medium" as Severity, penalty: 10, recommendation: "Define a restrictive Content-Security-Policy and roll it out with report-only monitoring first." },
-    { name: "x-content-type-options", label: "Content-Type protection", severity: "low" as Severity, penalty: 6, recommendation: "Add X-Content-Type-Options: nosniff to responses." },
-    { name: "x-frame-options", label: "Clickjacking protection", severity: "low" as Severity, penalty: 6, recommendation: "Set X-Frame-Options or an equivalent frame-ancestors CSP directive." },
-    { name: "referrer-policy", label: "Referrer policy", severity: "low" as Severity, penalty: 4, recommendation: "Set a privacy-preserving Referrer-Policy such as strict-origin-when-cross-origin." },
-    { name: "permissions-policy", label: "Permissions policy", severity: "info" as Severity, penalty: 2, recommendation: "Declare a least-privilege Permissions-Policy for browser capabilities." },
+    {
+      name: "strict-transport-security",
+      label: "HSTS",
+      severity: "medium" as Severity,
+      penalty: 12,
+      recommendation: "Set Strict-Transport-Security after validating HTTPS coverage.",
+    },
+    {
+      name: "content-security-policy",
+      label: "Content Security Policy",
+      severity: "medium" as Severity,
+      penalty: 10,
+      recommendation: "Define a restrictive Content-Security-Policy and roll it out with report-only monitoring first.",
+    },
+    {
+      name: "x-content-type-options",
+      label: "Content-Type protection",
+      severity: "low" as Severity,
+      penalty: 6,
+      recommendation: "Add X-Content-Type-Options: nosniff to responses.",
+    },
+    {
+      name: "x-frame-options",
+      label: "Clickjacking protection",
+      severity: "low" as Severity,
+      penalty: 6,
+      recommendation: "Set X-Frame-Options or an equivalent frame-ancestors CSP directive.",
+    },
+    {
+      name: "referrer-policy",
+      label: "Referrer policy",
+      severity: "low" as Severity,
+      penalty: 4,
+      recommendation: "Set a privacy-preserving Referrer-Policy such as strict-origin-when-cross-origin.",
+    },
+    {
+      name: "permissions-policy",
+      label: "Permissions policy",
+      severity: "info" as Severity,
+      penalty: 2,
+      recommendation: "Declare a least-privilege Permissions-Policy for browser capabilities.",
+    },
+    {
+      name: "cross-origin-opener-policy",
+      label: "Cross-Origin-Opener-Policy",
+      severity: "info" as Severity,
+      penalty: 2,
+      recommendation: "Consider setting Cross-Origin-Opener-Policy to isolate the browsing context.",
+    },
+    {
+      name: "cross-origin-resource-policy",
+      label: "Cross-Origin-Resource-Policy",
+      severity: "info" as Severity,
+      penalty: 1,
+      recommendation: "Consider setting Cross-Origin-Resource-Policy to limit cross-origin resource loading.",
+    },
   ];
 
   for (const check of headerChecks) {
     if (enforcedHttps && check.name === "strict-transport-security") {
-      if (headers.get(check.name)) strengths.push({ title: "HSTS is configured", description: "The response advertises HTTP Strict Transport Security." });
-      else {
+      if (headers.get(check.name)) {
+        strengths.push({
+          title: "HSTS is configured",
+          description: "The response advertises HTTP Strict Transport Security.",
+        });
+      } else {
         score -= check.penalty;
-        addFinding(findings, check.severity, "Security Headers", `Missing ${check.label}`, `The response does not include the ${check.name} header.`, check.recommendation);
+        addFinding(
+          findings,
+          check.severity,
+          "Security Headers",
+          `Missing ${check.label}`,
+          `The response does not include the ${check.name} header.`,
+          check.recommendation,
+        );
       }
       continue;
     }
 
-    if (headers.get(check.name)) strengths.push({ title: `${check.label} configured`, description: `The response includes ${check.name}.` });
-    else {
+    if (headers.get(check.name)) {
+      strengths.push({
+        title: `${check.label} configured`,
+        description: `The response includes ${check.name}.`,
+      });
+    } else {
       score -= check.penalty;
-      addFinding(findings, check.severity, "Security Headers", `Missing ${check.label}`, `The response does not include the ${check.name} header.`, check.recommendation);
+      addFinding(
+        findings,
+        check.severity,
+        "Security Headers",
+        `Missing ${check.label}`,
+        `The response does not include the ${check.name} header.`,
+        check.recommendation,
+      );
     }
   }
 
   const serverHeader = headers.get("server");
   if (serverHeader) {
     score -= 3;
-    addFinding(findings, "info", "Information Disclosure", "Server identity is exposed", `The response includes a Server header (${serverHeader.slice(0, 80)}).`, "Remove or generalize detailed server identification headers where operationally possible.");
+    addFinding(
+      findings,
+      "info",
+      "Information Disclosure",
+      "Server identity is exposed",
+      `The response includes a Server header (${serverHeader.slice(0, 80)}).`,
+      "Remove or generalize detailed server identification headers where operationally possible.",
+    );
   }
 
   if (response.status >= 500) {
     score -= 10;
-    addFinding(findings, "medium", "Availability", "The target returned a server error", `The passive request returned HTTP ${response.status}.`, "Review application and upstream logs for the failing endpoint and monitor availability.");
+    addFinding(
+      findings,
+      "medium",
+      "Availability",
+      "The target returned a server error",
+      `The passive request returned HTTP ${response.status}.`,
+      "Review application and upstream logs for the failing endpoint and monitor availability.",
+    );
   }
 
   const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
-  const findingsForProfile = profile === "quick" ? findings.filter((finding) => finding.severity !== "info") : findings;
-  const sortedFindings = findingsForProfile.sort((a, b) => severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity));
+  const findingsForProfile =
+    profile === "quick" ? findings.filter((finding) => finding.severity !== "info") : findings;
+  const sortedFindings = findingsForProfile.sort(
+    (a, b) => severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity),
+  );
   const normalizedScore = Math.max(0, Math.min(100, score));
-  const posture = normalizedScore >= 85 ? "Strong Security Posture" : normalizedScore >= 70 ? "Moderately Secured" : normalizedScore >= 50 ? "Needs Improvement" : "Critical Attention Required";
+  const posture =
+    normalizedScore >= 85
+      ? "Strong Security Posture"
+      : normalizedScore >= 70
+        ? "Moderately Secured"
+        : normalizedScore >= 50
+          ? "Needs Improvement"
+          : "Critical Attention Required";
   const reverse = await getReverseName(addresses[0], hostname);
-  const nextSteps = sortedFindings.filter((finding) => finding.severity !== "info").slice(0, 5).map((finding) => finding.recommendation);
+  const nextSteps = sortedFindings
+    .filter((finding) => finding.severity !== "info")
+    .slice(0, 5)
+    .map((finding) => finding.recommendation);
 
-  if (nextSteps.length === 0) nextSteps.push("Continue monitoring the security headers and repeat the assessment after every material deployment.");
+  if (nextSteps.length === 0) {
+    nextSteps.push(
+      "Continue monitoring the security headers and repeat the assessment after every material deployment.",
+    );
+  }
 
   return {
     id: `AKR-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 6).toUpperCase()}`,
@@ -292,11 +445,16 @@ async function runPassiveScan(target: string, profile: ScanProfile): Promise<Sca
 }
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "al-kunooze-security", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "al-kunooze-security", version: "1.1", timestamp: new Date().toISOString() });
 });
 
 app.get("/api/scans", async (_req, res) => {
-  res.json((await readStoredScans()).map(({ findings, ...summary }) => ({ ...summary, findingCount: findings.length })));
+  res.json(
+    (await readStoredScans()).map(({ findings, ...summary }) => ({
+      ...summary,
+      findingCount: findings.length,
+    })),
+  );
 });
 
 app.get("/api/scans/:id", async (req, res) => {
@@ -322,7 +480,9 @@ app.post("/api/scans", async (req: Request, res: Response) => {
   }
 
   try {
-    const profile: ScanProfile = ["quick", "deep", "authorized_deep"].includes(req.body?.profile) ? req.body.profile : "deep";
+    const profile: ScanProfile = ["quick", "deep", "authorized_deep"].includes(req.body?.profile)
+      ? req.body.profile
+      : "deep";
     const result = await runPassiveScan(req.body?.target, profile);
     await writeStoredScan(result);
     return res.status(201).json(result);
