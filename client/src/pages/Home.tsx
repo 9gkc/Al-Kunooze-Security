@@ -32,17 +32,41 @@ const fadeIn = {
 };
 
 const features = [
-  { icon: Scan, title: "Deep Vulnerability Scanning", desc: "Comprehensive analysis of web applications including DNS, ports, TLS, security headers, and known vulnerability patterns." },
-  { icon: FileSearch, title: "Academic-Grade Reports", desc: "Professional reports with executive summaries, attacker/defender perspectives, and actionable remediation steps." },
-  { icon: Lock, title: "Authorized Defense Only", desc: "Built exclusively for defensive security. Scans only authorized targets with strict ethical guidelines." },
-  { icon: Bug, title: "Header Risk Detection", desc: "Evaluates transport and browser security headers, then explains the practical impact of every missing control." },
-  { icon: Network, title: "Public Surface Evidence", desc: "Resolves public DNS records and records response timing without intrusive port sweeps or exploit payloads." },
-  { icon: Terminal, title: "Exportable Evidence", desc: "Keeps each completed assessment as a structured JSON report your team can review and export." },
+  {
+    icon: Scan,
+    title: "Passive Security Assessment",
+    desc: "Inspect public DNS, HTTPS reachability, response timing, and browser security headers without exploit payloads or intrusive sweeps.",
+  },
+  {
+    icon: FileSearch,
+    title: "Structured Security Reports",
+    desc: "Generate scored JSON reports with findings, strengths, executive summary, and practical remediation steps.",
+  },
+  {
+    icon: Lock,
+    title: "Authorization-Gated Only",
+    desc: "Every scan requires explicit confirmation that you own the target or have permission to assess it.",
+  },
+  {
+    icon: Bug,
+    title: "Header & Transport Analysis",
+    desc: "Evaluate HSTS quality, CSP, clickjacking protections, referrer policy, and other browser-facing controls.",
+  },
+  {
+    icon: Network,
+    title: "Public Surface Evidence",
+    desc: "Resolve public DNS records and record response timing without modifying the target or following redirects blindly.",
+  },
+  {
+    icon: Terminal,
+    title: "Exportable Evidence",
+    desc: "Store each completed assessment locally and download structured JSON reports for review.",
+  },
 ];
 
 const stats = [
   { value: "Passive", label: "Assessment mode" },
-  { value: "DNS + TLS", label: "Public evidence" },
+  { value: "DNS + HTTPS", label: "Public evidence" },
   { value: "JSON", label: "Report export" },
   { value: "No exploit", label: "Safety boundary" },
 ];
@@ -51,7 +75,9 @@ export default function Home() {
   const [serviceOnline, setServiceOnline] = useState(false);
 
   useEffect(() => {
-    healthCheck().then(() => setServiceOnline(true)).catch(() => setServiceOnline(false));
+    healthCheck()
+      .then(() => setServiceOnline(true))
+      .catch(() => setServiceOnline(false));
   }, []);
 
   return (
@@ -69,9 +95,17 @@ export default function Home() {
             <motion.div initial="hidden" animate="visible" custom={0} variants={fadeIn}>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Zap className="w-4 h-4" />
-                Advanced Cybersecurity Platform
-                <span className={`ml-1 inline-flex items-center gap-1 text-xs ${serviceOnline ? "text-emerald-300" : "text-muted-foreground"}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${serviceOnline ? "bg-emerald-400" : "bg-slate-500"}`} />
+                Defensive Passive Assessment Platform
+                <span
+                  className={`ml-1 inline-flex items-center gap-1 text-xs ${
+                    serviceOnline ? "text-emerald-300" : "text-muted-foreground"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      serviceOnline ? "bg-emerald-400" : "bg-slate-500"
+                    }`}
+                  />
                   {serviceOnline ? "API online" : "API checking"}
                 </span>
               </span>
@@ -84,8 +118,8 @@ export default function Home() {
               variants={fadeIn}
               className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] tracking-tight mb-6"
             >
-              Neutralize Threats{" "}
-              <span className="text-gradient-cyan">Before They Materialize</span>
+              Assess Authorized Targets{" "}
+              <span className="text-gradient-cyan">With Clear Evidence</span>
             </motion.h1>
 
             <motion.p
@@ -95,9 +129,9 @@ export default function Home() {
               variants={fadeIn}
               className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-xl"
             >
-              Elite cybersecurity intelligence for organizations that demand the highest 
-              level of digital protection. Deep defensive scanning, vulnerability assessment, 
-              and comprehensive security reporting.
+              Al-Kunooze Security performs passive, authorization-gated reviews of public DNS,
+              HTTPS posture, response timing, and security headers — then turns the evidence
+              into a scored, exportable report.
             </motion.p>
 
             <motion.div
@@ -135,7 +169,7 @@ export default function Home() {
               variants={fadeIn}
               className="flex flex-wrap gap-6 mt-10"
             >
-              {["Comprehensive Reports", "Advanced Security Assessment", "Secure Local Execution"].map((point) => (
+              {["Authorization required", "Passive checks only", "Local JSON reports"].map((point) => (
                 <span key={point} className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   {point}
@@ -186,8 +220,8 @@ export default function Home() {
               Platform <span className="text-gradient-cyan">Capabilities</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              A comprehensive suite of security tools designed for deep defensive scanning 
-              and professional vulnerability assessment.
+              Focused defensive tools for authorized passive assessment and clear, actionable
+              reporting.
             </p>
           </motion.div>
 
@@ -232,19 +266,19 @@ export default function Home() {
               variants={fadeIn}
             >
               <h2 className="font-display font-bold text-3xl lg:text-4xl tracking-tight mb-6">
-                Deep-Scan Intelligence Across Your{" "}
-                <span className="text-gradient-cyan">Attack Surface</span>
+                Clear Evidence From{" "}
+                <span className="text-gradient-cyan">Authorized Targets</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                Our advanced scanning engine performs comprehensive analysis across multiple 
-                layers of your web infrastructure, from network topology to application-level 
-                vulnerabilities.
+                The scanner makes one controlled request, evaluates transport and response
+                headers, records timing and DNS context, then produces a scored report you can
+                export.
               </p>
               <div className="space-y-4">
                 {[
                   "Public DNS resolution and target reachability",
                   "HTTPS, redirect, and browser security header evaluation",
-                  "Severity-ranked findings with practical recommendations",
+                  "HSTS quality analysis and severity-ranked findings",
                   "Authorized passive assessment with no exploit payloads",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
@@ -284,6 +318,7 @@ export default function Home() {
                   <p className="text-emerald-400">[+] DNS resolution and reachability</p>
                   <p className="text-emerald-400">[+] HTTPS and redirect inspection</p>
                   <p className="text-emerald-400">[+] Security header evaluation</p>
+                  <p className="text-emerald-400">[+] HSTS quality analysis</p>
                   <p className="text-yellow-400">[!] Findings ranked by practical severity</p>
                   <p className="text-emerald-400">[+] No exploit payloads sent</p>
                   <p className="text-emerald-400">[+] JSON report persisted locally</p>
@@ -311,12 +346,11 @@ export default function Home() {
             variants={fadeIn}
           >
             <h2 className="font-display font-bold text-3xl lg:text-5xl tracking-tight mb-6">
-              Ready to Secure Your{" "}
-              <span className="text-gradient-cyan">Digital Infrastructure</span>?
+              Ready to Assess an{" "}
+              <span className="text-gradient-cyan">Authorized Target</span>?
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
-              Deploy deep-scan intelligence across your attack surface and get 
-              professional security reports in minutes.
+              Run a passive security assessment and get a clear, scored report in minutes.
             </p>
             <Link href="/scanner">
               <Button
