@@ -7,6 +7,8 @@ All notable changes to Al-Kunooze Security are documented in this file.
 ### Added
 - Stronger API client with typed health response and clearer error messages
 - Version field consistency across health endpoint and package
+- Deeper CSP quality signals (`unsafe-inline`, `unsafe-eval`, broad wildcards)
+- Validation that `X-Content-Type-Options` is actually `nosniff`
 
 ### Security & Hardening
 - Continued reinforcement of passive assessment boundaries
@@ -14,6 +16,7 @@ All notable changes to Al-Kunooze Security are documented in this file.
 - Expanded private address blocking (including CGNAT)
 - Global security response headers
 - Rate-limit cleanup
+- HSTS max-age quality scoring
 
 ### Operational
 - Docker healthcheck and improved compose configuration
