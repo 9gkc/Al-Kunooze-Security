@@ -14,6 +14,7 @@ All notable changes to Al-Kunooze Security are documented in this file.
 - Docker healthcheck
 - `.dockerignore` for cleaner builds
 - Improved `docker-compose.yml` with healthcheck configuration
+- Stronger API client error handling and typed health response
 
 ### Changed
 - User-Agent updated to reflect version 1.1
