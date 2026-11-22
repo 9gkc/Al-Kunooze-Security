@@ -4,15 +4,33 @@ export interface ScanSummary extends Omit<ScanResult, "findings"> {
   findingCount: number;
 }
 
+export interface HealthResponse {
+  status: string;
+  service: string;
+  version?: string;
+  timestamp: string;
+}
+
 async function request<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
   });
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(payload?.error || "The request could not be completed.");
+
+  let payload: any = null;
+  try {
+    payload = await response.json();
+  } catch {
+    // ignore parse errors
   }
+
+  if (!response.ok) {
+    const message =
+      (payload && typeof payload.error === "string" && payload.error) ||
+      `Request failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
   return payload as T;
 }
 
@@ -36,5 +54,5 @@ export function downloadScanUrl(id: string) {
 }
 
 export function healthCheck() {
-  return request<{ status: string; service: string; timestamp: string }>("/api/health");
+  return request<HealthResponse>("/api/health");
 }
