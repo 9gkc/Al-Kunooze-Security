@@ -2,8 +2,6 @@
 
 # Al-Kunooze Security
 
-> **Live demo:** [Open Al-Kunooze-Security in your browser](https://9gkc.github.io/Al-Kunooze-Security/)
-
 **Al-Kunooze Security** is a defensive, passive security assessment platform for authorized web targets. It combines a React workspace with an Express API to inspect public DNS, HTTPS reachability, response timing, and browser-facing security headers, then turns the observed evidence into a scored JSON report.
 
 ![React](https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react)
@@ -12,7 +10,7 @@
 ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite)
 ![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.1.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.0-blue?style=flat-square)
 
 ## Product scope
 
@@ -25,7 +23,7 @@ The current implementation is intentionally **passive and authorization-gated**.
 | Target input | HTTP/HTTPS domain or URL normalization |
 | Public DNS | IPv4/IPv6 lookup and reverse DNS context |
 | Transport | HTTPS detection and HTTP-to-HTTPS redirect observation |
-| Headers | HSTS, CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP |
+| Headers | HSTS (including max-age quality), CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP |
 | Risk output | Severity-ranked findings, posture score, strengths, and remediation steps |
 | Reports | Local JSON persistence (atomic writes) with list, detail, and download endpoints |
 | Safety controls | Authorization gate, private/local/CGNAT address blocking, request timeout, response size limit, rate limiting, manual redirects |
@@ -36,11 +34,10 @@ The current implementation is intentionally **passive and authorization-gated**.
 |---|---|
 | Frontend | React 19, TypeScript, Wouter, Framer Motion |
 | UI | Tailwind CSS 4, Radix/shadcn components, Lucide icons |
-| Development server | Express 5 with Vite middleware |
+| Development server | Express with Vite middleware |
 | Production server | Bundled Node.js/Express server serving the Vite build |
 | Persistence | Local JSON file at `.data/scans.json` (atomic writes) |
-| Validation | TypeScript compiler and Git diff checks |
-| Container | Docker + Docker Compose |
+| Container | Docker + Docker Compose with healthcheck |
 
 ## Getting started
 
@@ -62,7 +59,7 @@ cp .env.example .env
 pnpm dev
 ```
 
-The application will be available at `http://localhost:3000`.
+Open `http://localhost:3000`.
 
 Useful checks before committing:
 
@@ -78,33 +75,28 @@ pnpm build
 NODE_ENV=production pnpm start
 ```
 
-Change the port with the `PORT` environment variable:
-
 ```bash
 PORT=8080 NODE_ENV=production pnpm start
 ```
 
-### Docker
-
-Build and run with Docker Compose:
+### Docker (recommended for a quick real run)
 
 ```bash
 docker compose up --build -d
 ```
 
-The service will be available at `http://localhost:3000`. Scan data is persisted in a named volume.
+Service: `http://localhost:3000`  
+Scan data is stored in a named volume.
 
 ## API reference
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/api/health` | Returns service status, version, and timestamp |
-| `GET` | `/api/scans` | Returns report summaries without full findings |
-| `GET` | `/api/scans/:id` | Returns one complete report |
-| `GET` | `/api/scans/:id/download` | Downloads one report as JSON |
-| `POST` | `/api/scans` | Runs an authorized passive assessment and stores the result |
-
-Example request:
+| `GET` | `/api/health` | Service status, version (`1.2`), timestamp |
+| `GET` | `/api/scans` | Report summaries |
+| `GET` | `/api/scans/:id` | Full report |
+| `GET` | `/api/scans/:id/download` | Download report as JSON |
+| `POST` | `/api/scans` | Run an authorized passive assessment |
 
 ```bash
 curl -X POST http://localhost:3000/api/scans \
@@ -116,27 +108,27 @@ curl -X POST http://localhost:3000/api/scans \
   }'
 ```
 
-Supported profiles are `quick`, `deep`, and `authorized_deep`. The current profiles control result filtering; they do not enable exploitative or intrusive behavior.
+Profiles: `quick`, `deep`, `authorized_deep` (filtering only — never exploitative).
 
 ## Application routes
 
 | Route | Purpose |
 |---|---|
-| `/` | Product overview and live API status indicator |
-| `/scanner` | Authorized passive scan form, progress, evidence, findings, and export |
-| `/reports` | Stored report list, posture filters, details, refresh, and download |
-| `/services` | Implemented capability and safety-boundary overview |
-| `/about` | Mission, operating principles, and current technology stack |
+| `/` | Overview and live API status |
+| `/scanner` | Authorized scan form, progress, findings, export |
+| `/reports` | Stored reports |
+| `/services` | Capabilities and safety boundaries |
+| `/about` | Mission and stack |
 
-## Data and operational notes
+## Operational notes
 
-Reports are intentionally stored locally and capped at the newest 50 records. Writes are atomic (temporary file + rename). The service applies a 10-second request timeout and blocks local, link-local, loopback, private IPv4, private IPv6, and carrier-grade NAT targets. Redirects are observed rather than followed automatically, which keeps the assessment bounded to the submitted URL.
+Reports are stored locally (newest 50). Writes are atomic. Private, local, loopback, and CGNAT targets are blocked. Redirects are observed, not followed blindly.
 
-The current application does not include user accounts, a database, a job queue, a distributed worker, or a cloud deployment configuration. Those are appropriate next steps for a shared team product, but they should be added together with an access-control model and an operational privacy policy rather than implied by the current interface.
+This release does not include multi-user accounts or cloud multi-tenant deployment. Those require access control and a clear privacy model before they are claimed as product features.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
