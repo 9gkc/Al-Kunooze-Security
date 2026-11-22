@@ -2,7 +2,6 @@ import { Link } from "wouter";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Shield,
   Scan,
   FileSearch,
   Lock,
@@ -73,16 +72,22 @@ const stats = [
 
 export default function Home() {
   const [serviceOnline, setServiceOnline] = useState(false);
+  const [apiVersion, setApiVersion] = useState<string | null>(null);
 
   useEffect(() => {
     healthCheck()
-      .then(() => setServiceOnline(true))
-      .catch(() => setServiceOnline(false));
+      .then((data) => {
+        setServiceOnline(true);
+        if (data.version) setApiVersion(data.version);
+      })
+      .catch(() => {
+        setServiceOnline(false);
+        setApiVersion(null);
+      });
   }, []);
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center">
         <div className="absolute inset-0">
           <img src="/manus-storage/hero-bg.png" alt="" className="w-full h-full object-cover opacity-60" />
@@ -106,7 +111,11 @@ export default function Home() {
                       serviceOnline ? "bg-emerald-400" : "bg-slate-500"
                     }`}
                   />
-                  {serviceOnline ? "API online" : "API checking"}
+                  {serviceOnline
+                    ? apiVersion
+                      ? `API online · v${apiVersion}`
+                      : "API online"
+                    : "API checking"}
                 </span>
               </span>
             </motion.div>
@@ -180,7 +189,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="relative -mt-1">
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -205,7 +213,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-24">
         <div className="container">
           <motion.div
@@ -250,7 +257,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Scanning Visual Section */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0">
           <img src="/manus-storage/scanning-visual.png" alt="" className="w-full h-full object-cover opacity-20" />
@@ -331,7 +337,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0">
           <img src="/manus-storage/cta-bg.png" alt="" className="w-full h-full object-cover opacity-30" />
